@@ -13,7 +13,6 @@ import {
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import axios from "axios";
-import Question from "./Question";
 import Match from "./Match";
 
 const CardGetMatch = ({ headers, server, host, setMatch }) => {
@@ -134,8 +133,13 @@ const Home = () => {
       </Grid>
 
       <Grid item xs={12} sm={8}>
-        <Match setMatch={setMatch} match={match} />
-        <Question />
+        <Match
+          setMatch={setMatch}
+          match={match}
+          server={server}
+          host={host}
+          headers={headers}
+        />
       </Grid>
     </Grid>
   );

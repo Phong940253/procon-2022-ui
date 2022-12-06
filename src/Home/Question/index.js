@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Grid,
   Card,
@@ -15,6 +15,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
+import axios from "axios";
 
 const dataQuestion = [
   {
@@ -94,9 +95,14 @@ LabelChip.propTypes = {
 const Question = ({
   openDialogQuestion,
   hanldeCloseDialogQuestion,
-  question,
+  dataMatch,
+  server,
+  host,
+  headers,
 }) => {
   const [open, setOpen] = React.useState(false);
+  const [question, setQuestion] = React.useState([]);
+  const [dataQuestion, setDataQuestion] = React.useState({});
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -106,11 +112,34 @@ const Question = ({
     setOpen(false);
   };
 
-  const [data, setData] = React.useState(dataQuestion[0]);
-
   const handleSetData = (index) => {
-    setData(dataQuestion[index]);
+    setDataQuestion(question[index]);
   };
+
+  const getAllQuestionByMatch = (dataMatch) => {
+    if (dataMatch != null) {
+      axios
+        .get(`${host}/question?match[eq_id]=${dataMatch.id}`, headers)
+        .then((data) => {
+          let dataQuestion = data.data.data;
+          dataQuestion.map((item) => {
+            const parse = JSON.parse(item.question_data);
+            item.n_cards = parse.n_cards;
+            item.n_parts = parse.n_parts;
+            item.bonus_factor = parse.bonus_factor;
+            item.penalty_per_change = parse.penalty_per_change;
+            item.point_per_correct = parse.point_per_correct;
+          });
+          setQuestion(dataQuestion);
+        });
+    }
+  };
+
+  useEffect(() => {
+    getAllQuestionByMatch(dataMatch);
+    console.log(dataMatch);
+  }, [dataMatch]);
+
   return (
     <Dialog
       open={openDialogQuestion}
@@ -137,7 +166,7 @@ const Question = ({
       </DialogTitle>
       <DialogContent>
         <Grid container spacing={2}>
-          {dataQuestion.map((item, index) => (
+          {question.map((item, index) => (
             <Grid item xs={12} sm={6} md={3} key={item.id}>
               <Card
                 elevation={3}
@@ -147,7 +176,7 @@ const Question = ({
                 }}
                 sx={{ cursor: "pointer" }}
               >
-                <CardHeader title={`Q_${item.id}`} />
+                <CardHeader title={item.name} />
                 <CardContent>
                   <Grid container spacing={1}>
                     <Grid item>
@@ -157,12 +186,16 @@ const Question = ({
                     </Grid>
                     <Grid item>
                       <Chip
-                        label={<LabelChip title="Cards" content={item.cards} />}
+                        label={
+                          <LabelChip title="Cards" content={item.n_cards} />
+                        }
                       />
                     </Grid>
                     <Grid item>
                       <Chip
-                        label={<LabelChip title="Parts" content={item.parts} />}
+                        label={
+                          <LabelChip title="Parts" content={item.n_parts} />
+                        }
                       />
                     </Grid>
                     <Grid item>
@@ -170,7 +203,7 @@ const Question = ({
                         label={
                           <LabelChip
                             title="Bonus factor"
-                            content={item.bonusFactor}
+                            content={item.bonus_factor}
                           />
                         }
                       />
@@ -180,7 +213,7 @@ const Question = ({
                         label={
                           <LabelChip
                             title="Penalty per change"
-                            content={item.penaltyPerChange}
+                            content={item.penalty_per_change}
                           />
                         }
                       />
@@ -190,23 +223,29 @@ const Question = ({
                         label={
                           <LabelChip
                             title="Point per card"
-                            content={item.pointPerCard}
+                            content={item.point_per_correct}
                           />
                         }
                       />
                     </Grid>
                   </Grid>
                   <Typography mt={2} gutterBottom>
-                    <b>Start Time: </b>11/24/2022, 12:01:00 AM
+                    <b>Start Time: </b>
+                    {new Date(item.start_time).toLocaleString()}
                   </Typography>
                   <Typography>
-                    <b>End Time: </b>11/24/2022, 12:01:00 AM
+                    <b>End Time: </b>
+                    {new Date(item.end_time).toLocaleString()}
                   </Typography>
                 </CardContent>
               </Card>
             </Grid>
           ))}
-          <DialogAnswer open={open} handleClose={handleClose} data={data} />
+          <DialogAnswer
+            open={open}
+            handleClose={handleClose}
+            dataQuestion={dataQuestion}
+          />
         </Grid>
       </DialogContent>
     </Dialog>

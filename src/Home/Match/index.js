@@ -10,10 +10,9 @@ import {
 } from "@mui/material";
 
 import Question from "../Question";
-import axios from "axios";
 import PropTypes from "prop-types";
 
-const dataMatch = [
+const dataMatch1 = [
   {
     id: 1,
     name: "Tran 1",
@@ -65,28 +64,26 @@ const dataMatch = [
   },
 ];
 
-const Match = ({ server, host, header, match }) => {
+const Match = ({ server, host, headers, match }) => {
   const [open, setOpen] = React.useState(false);
-  const [question, setQuestion] = React.useState([]);
+  const [dataMatch, setDataMatch] = React.useState(null);
 
-  const handleClickOpen = () => {
+  const handleClickOpen = (index) => {
+    setDataMatch(dataMatch1[index]);
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
   };
-  //   const getAllQuestionByMatch = (id) => {
-  //     axios.get(`${host}/question?match[eq_id]=${id}`).then((data) => {
-  //       console.log(data);
-  //     });
+
   return (
     <Grid container spacing={2}>
-      {dataMatch.map((item) => (
+      {dataMatch1.map((item, index) => (
         <Grid item xs={6} sm={4} key={item.id}>
           <Card
             elevation={3}
-            onClick={handleClickOpen}
+            onClick={() => handleClickOpen(index)}
             sx={{ cursor: "pointer" }}
           >
             <CardHeader
@@ -104,7 +101,10 @@ const Match = ({ server, host, header, match }) => {
       <Question
         openDialogQuestion={open}
         hanldeCloseDialogQuestion={handleClose}
-        question={question}
+        dataMatch={dataMatch}
+        server={server}
+        host={host}
+        headers={headers}
       />
     </Grid>
   );
