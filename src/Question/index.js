@@ -8,7 +8,7 @@ const dataMatch = [
     parts: 1,
     bonusFactor: 1,
     penaltyPerChange: 2,
-    Point per card: 22,
+    pointPerCard: 22,
     },
       {
           id: 2, 
@@ -16,7 +16,7 @@ const dataMatch = [
     parts: 1,
     bonusFactor: 1,
     penaltyPerChange: 2,
-    Point per card: 22,
+       pointPerCard: 22,
     },
       {
           id: 3, 
@@ -24,7 +24,7 @@ const dataMatch = [
     parts: 1,
     bonusFactor: 1,
     penaltyPerChange: 2,
-    Point per card: 22,
+    pointPerCard: 22,
     },
       {
           id: 4, 
@@ -32,7 +32,7 @@ const dataMatch = [
     parts: 1,
     bonusFactor: 1,
     penaltyPerChange: 2,
-    Point per card: 22,
+    pointPerCard: 22,
     },
       {
           id: 5, 
@@ -40,7 +40,7 @@ const dataMatch = [
     parts: 1,
     bonusFactor: 1,
     penaltyPerChange: 2,
-    Point per card: 22,
+    pointPerCard: 22,
     },
 ]
   
@@ -48,7 +48,7 @@ const dataMatch = [
 
 const Question = () => {
   <Grid container>
-      
+      {dataMatch}
       <Grid item></Grid>
   </Grid>;
 };
