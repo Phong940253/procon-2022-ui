@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import TextField from "@mui/material/TextField";
@@ -12,19 +12,33 @@ import {
 } from "@mui/material";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import axios from "axios";
+import Question from "./Question";
 
-const CardGetTournament = () => {
-  const [open, setOpen] = React.useState(false);
+const CardGetMatch = (props) => {
+  const [open, setOpen] = React.useState(true);
+  const [tournament, setTournament] = React.useState("");
 
   const handleClick = () => {
     setOpen(!open);
   };
 
-  const handleGetAllTournament = () => {};
+  const headers = {
+    headers: { Authorization: props.token },
+  };
+
+  let host = props.host;
+
+  const handleGetAllMatch = () => {
+    axios.get(host + "/match", headers).then((data) => {
+      console.log(data.data);
+      props.setMatch(data.data);
+    });
+  };
   return (
     <Card variant="outlined">
       <CardHeader
-        title="Tournament"
+        title="MATCH"
         titleTypographyProps={{
           fontSize: "1.15rem",
           textTransform: "uppercase",
@@ -40,35 +54,11 @@ const CardGetTournament = () => {
           <Stack spacing={2}>
             <Button
               variant="outlined"
-              onClick={handleGetAllTournament}
+              onClick={handleGetAllMatch}
               sx={{ width: "fit-content", textTransform: "capitalize" }}
             >
-              Get all Tournament
+              Get all match
             </Button>
-            <TextField
-              fullWidth
-              id="outlined-basic"
-              label="Các Tournament của đội chơi"
-              variant="outlined"
-            />
-            <TextField
-              fullWidth
-              id="outlined-basic"
-              label="ID Tournament"
-              variant="outlined"
-            />
-            <Button
-              variant="outlined"
-              sx={{ width: "fit-content", textTransform: "capitalize" }}
-            >
-              Get all Tournament
-            </Button>
-            <TextField
-              fullWidth
-              id="outlined-basic"
-              label="Thông tin chi tiết Tournament"
-              variant="outlined"
-            />
           </Stack>
         </CardContent>
       </Collapse>
@@ -115,54 +105,6 @@ const CardGetRound = () => {
               fullWidth
               id="outlined-basic"
               label="Thông tin chi tiết Round"
-              variant="outlined"
-            />
-          </Stack>
-        </CardContent>
-      </Collapse>
-    </Card>
-  );
-};
-
-const CardGetMatch = () => {
-  const [open, setOpen] = React.useState(false);
-
-  const handleClick = () => {
-    setOpen(!open);
-  };
-  return (
-    <Card variant="outlined">
-      <CardHeader
-        title="Match"
-        titleTypographyProps={{
-          fontSize: "1.15rem",
-          textTransform: "uppercase",
-          fontWeight: "bold",
-        }}
-        action={open ? <ExpandLess /> : <ExpandMore />}
-        onClick={handleClick}
-        sx={{ cursor: "pointer" }}
-      />
-      <Collapse in={open} timeout="auto" unmountOnExit>
-        <Divider variant="middle" />
-        <CardContent>
-          <Stack spacing={2}>
-            <TextField
-              fullWidth
-              id="outlined-basic"
-              label="ID Match"
-              variant="outlined"
-            />
-            <Button
-              variant="outlined"
-              sx={{ width: "fit-content", textTransform: "capitalize" }}
-            >
-              Get Match
-            </Button>
-            <TextField
-              fullWidth
-              id="outlined-basic"
-              label="Thông tin chi tiết Match"
               variant="outlined"
             />
           </Stack>
@@ -234,12 +176,18 @@ const CardChallenge = () => {
 };
 
 const Home = () => {
+  const [host, setHost] = useState("");
+  const [token, setToken] = useState("");
+  const [server, setServer] = useState("");
+
+  const [match, setMatch] = useState([]);
+
   return (
     <Grid container spacing={2} p={2} mt={6}>
       <Grid
         item
         xs={12}
-        sm={6}
+        sm={4}
         pr={2}
         sx={(theme) => ({
           [theme.breakpoints.up("md")]: {
@@ -257,30 +205,48 @@ const Home = () => {
                   id="outlined-basic"
                   label="Server"
                   variant="outlined"
+                  value={server}
+                  onChange={(e) => {
+                    setServer(e.target.value);
+                  }}
                 />
                 <TextField
                   fullWidth
                   id="outlined-basic"
                   label="Host"
                   variant="outlined"
+                  value={host}
+                  onChange={(e) => {
+                    setHost(e.target.value);
+                  }}
                 />
                 <TextField
                   fullWidth
                   id="outlined-basic"
                   label="Token"
                   variant="outlined"
+                  value={token}
+                  onChange={(e) => {
+                    setToken(e.target.value);
+                  }}
                 />
               </Stack>
             </CardContent>
           </Card>
-          <CardGetTournament />
-          <CardGetRound />
-          <CardGetMatch />
-          <CardChallenge />
+          <CardGetMatch
+            server={server}
+            host={host}
+            token={token}
+            setMatch={setMatch}
+          />
+          {/* <CardGetRound />
+          <CardChallenge /> */}
         </Stack>
       </Grid>
 
-      <Grid item xs={12} sm={6}></Grid>
+      <Grid item xs={12} sm={8}>
+        <Question />
+      </Grid>
     </Grid>
   );
 };
