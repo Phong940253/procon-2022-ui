@@ -24,8 +24,8 @@ const CardGetMatch = ({ headers, server, host, setMatch }) => {
 
   const handleGetAllMatch = () => {
     axios.get(host + "/match", headers).then((data) => {
-      console.log(data.data);
-      setMatch(data.data);
+      console.log(data.data.data);
+      setMatch(data.data.data);
     });
   };
   return (
@@ -124,11 +124,9 @@ const Home = () => {
           <CardGetMatch
             server={server}
             host={host}
-            header={headers}
+            headers={headers}
             setMatch={setMatch}
           />
-          {/* <CardGetRound />
-          <CardChallenge /> */}
         </Stack>
       </Grid>
 

@@ -15,66 +15,8 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
+import ReplayIcon from "@mui/icons-material/Replay";
 import axios from "axios";
-
-const dataQuestion = [
-  {
-    id: 1,
-    cards: 1,
-    parts: 1,
-    bonusFactor: 1,
-    penaltyPerChange: 2,
-    pointPerCard: 22,
-  },
-  {
-    id: 2,
-    cards: 1,
-    parts: 1,
-    bonusFactor: 1,
-    penaltyPerChange: 2,
-    pointPerCard: 22,
-  },
-  {
-    id: 3,
-    cards: 1,
-    parts: 1,
-    bonusFactor: 1,
-    penaltyPerChange: 2,
-    pointPerCard: 22,
-  },
-  {
-    id: 4,
-    cards: 1,
-    parts: 1,
-    bonusFactor: 1,
-    penaltyPerChange: 2,
-    pointPerCard: 22,
-  },
-  {
-    id: 5,
-    cards: 1,
-    parts: 1,
-    bonusFactor: 1,
-    penaltyPerChange: 2,
-    pointPerCard: 22,
-  },
-  {
-    id: 6,
-    cards: 1,
-    parts: 1,
-    bonusFactor: 1,
-    penaltyPerChange: 2,
-    pointPerCard: 22,
-  },
-  {
-    id: 7,
-    cards: 1,
-    parts: 1,
-    bonusFactor: 1,
-    penaltyPerChange: 2,
-    pointPerCard: 22,
-  },
-];
 
 const LabelChip = ({ title, content }) => {
   return (
@@ -102,7 +44,7 @@ const Question = ({
 }) => {
   const [open, setOpen] = React.useState(false);
   const [question, setQuestion] = React.useState([]);
-  const [dataQuestion, setDataQuestion] = React.useState({});
+  const [dataQuestion, setDataQuestion] = React.useState(null);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -116,7 +58,7 @@ const Question = ({
     setDataQuestion(question[index]);
   };
 
-  const getAllQuestionByMatch = (dataMatch) => {
+  const getAllQuestionByMatch = () => {
     if (dataMatch != null) {
       axios
         .get(`${host}/question?match[eq_id]=${dataMatch.id}`, headers)
@@ -136,7 +78,7 @@ const Question = ({
   };
 
   useEffect(() => {
-    getAllQuestionByMatch(dataMatch);
+    getAllQuestionByMatch();
     console.log(dataMatch);
   }, [dataMatch]);
 
@@ -155,12 +97,17 @@ const Question = ({
           width="100%"
         >
           <Grid item>
-            <b>Câu hỏi</b>
+            <b>{dataMatch && dataMatch.name}</b>
           </Grid>
           <Grid item>
-            <IconButton edge="end" onClick={hanldeCloseDialogQuestion}>
-              <CloseIcon />
-            </IconButton>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <IconButton edge="end" onClick={getAllQuestionByMatch}>
+                <ReplayIcon />
+              </IconButton>
+              <IconButton edge="end" onClick={hanldeCloseDialogQuestion}>
+                <CloseIcon />
+              </IconButton>
+            </Stack>
           </Grid>
         </Grid>
       </DialogTitle>
@@ -245,6 +192,9 @@ const Question = ({
             open={open}
             handleClose={handleClose}
             dataQuestion={dataQuestion}
+            host={host}
+            headers={headers}
+            server={server}
           />
         </Grid>
       </DialogContent>
