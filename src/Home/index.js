@@ -62,7 +62,7 @@ const CardGetMatch = ({ headers, server, host, setMatch }) => {
 const Home = () => {
   const [host, setHost] = useState("");
   const [token, setToken] = useState("");
-  const [server, setServer] = useState("");
+  const [server, setServer] = useState("http://127.0.0.1:5000");
 
   const [match, setMatch] = useState([]);
 

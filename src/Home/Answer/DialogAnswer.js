@@ -12,13 +12,14 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
 import Editor from "react-simple-code-editor";
+import Box from "@mui/material/Box";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { highlight, languages } from "prismjs/components/prism-core";
 import "prismjs/components/prism-clike";
 import "prismjs/components/prism-javascript";
 import "prismjs/themes/prism.css"; //Example style, you can use another
 import axios from "axios";
-
+import { saveAs } from "file-saver";
 export default function DialogAnswer({
   open,
   handleClose,
@@ -27,7 +28,8 @@ export default function DialogAnswer({
   headers,
   server,
 }) {
-  const [code, setCode] = React.useState(`[]`);
+  const [code, setCode] = React.useState("");
+  const [probability, setProbability] = React.useState("");
   const [audioData, setAudioData] = React.useState([]);
 
   const handleGetAudio = (newType) => {
@@ -50,16 +52,38 @@ export default function DialogAnswer({
       });
   };
 
+  const submitAnswer = () => {};
+
   const getAudioBase64ById = (id, k) => {
-    axios.get(`${host}/audio/${id}`, headers).then((res) => {
-      axios.post(`${server}/audio`, { wav: res.data, k: k }).then((res) => {
-        if (res.data.status === "success") {
-          let data = JSON.parse(res.data.indices);
-          data = JSON.stringify(data);
-          setCode(data);
-        }
+    axios({
+      url: `${host}/question/${dataQuestion.id}/audio/divided-data?uuid=${id}`,
+      method: "GET",
+      responseType: "blob",
+      headers: headers.headers,
+    })
+      // .get(
+      //   `${host}/question/${dataQuestion.id}/audio/divided-data?uuid=${id}`,
+      //   headers
+      // )
+      // .then((response) => response.blob())
+      .then((res) => {
+        let fileName = `audio.wav`;
+        const data = new FormData();
+        data.append("wav", res.data, fileName);
+        data.append("k", k);
+        data.append("name", id);
+        axios
+          .post(`${server}/audio`, data, {
+            headers: { "Content-Type": "multipart/form-data" },
+          })
+          .then((res) => {
+            if (res.data.status === "success") {
+              let data = JSON.stringify(res.data.indices);
+              setCode(data);
+              setProbability(JSON.stringify(res.data.values));
+            }
+          });
       });
-    });
   };
 
   React.useEffect(() => {
@@ -82,7 +106,13 @@ export default function DialogAnswer({
               <b>Create Answer {dataQuestion && dataQuestion.name}</b>
             </Grid>
             <Grid item>
-              <IconButton edge="end" onClick={handleClose}>
+              <IconButton
+                edge="end"
+                onClick={() => {
+                  handleClose();
+                  setCode("");
+                }}
+              >
                 <CloseIcon />
               </IconButton>
             </Grid>
@@ -111,37 +141,58 @@ export default function DialogAnswer({
             <Stack spacing={1}>
               {audioData.map((item, index) => (
                 <Stack key={index} direction="row" spacing={2}>
-                  <Chip
-                    label={item}
-                    edge="end"
+                  <Chip label={item} edge="end" />
+                  <IconButton
                     onClick={() => {
                       getAudioBase64ById(item, dataQuestion.n_cards);
                     }}
-                  />
-                  <IconButton>
+                  >
                     <PlayArrowIcon />
                   </IconButton>
                 </Stack>
               ))}
             </Stack>
             <Typography>Answer Data</Typography>
-            <Editor
-              value={code}
-              onValueChange={(code) => setCode(code)}
-              highlight={(code) => highlight(code, languages.js)}
-              padding={10}
-              style={{
-                fontFamily: '"Fira code", "Fira Mono", monospace',
-                fontSize: 12,
-              }}
-            />
+            <Box sx={{ border: "1px solid #e0e0e0", borderRadius: "4px" }}>
+              <Editor
+                value={code}
+                onValueChange={(code) => setCode(code)}
+                highlight={(code) => highlight(code, languages.js)}
+                padding={10}
+                style={{
+                  fontFamily: '"Fira code", "Fira Mono", monospace',
+                  fontSize: 12,
+                }}
+              />
+            </Box>
+            <Typography>Probability</Typography>
+            <Box sx={{ border: "1px solid #e0e0e0", borderRadius: "4px" }}>
+              <Editor
+                value={probability}
+                onValueChange={(probability) => setProbability(probability)}
+                highlight={(probability) =>
+                  highlight(probability, languages.js)
+                }
+                padding={10}
+                style={{
+                  fontFamily: '"Fira code", "Fira Mono", monospace',
+                  fontSize: 12,
+                }}
+              />
+            </Box>
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="error">
+          <Button
+            onClick={() => {
+              handleClose();
+              setCode("");
+            }}
+            color="error"
+          >
             Hủy
           </Button>
-          <Button>Lưu</Button>
+          {code ? <Button>Lưu</Button> : <Button disabled>Lưu</Button>}
         </DialogActions>
       </Dialog>
     </div>
